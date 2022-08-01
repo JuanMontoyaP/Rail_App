@@ -1,6 +1,9 @@
 {
     "cSpell.ignoreWords": [
-        "fastapi"
+        "dotenv",
+        "fastapi",
+        "jsonable",
+        "pydantic"
     ],
     "editor.formatOnSave": true,
     "python.testing.pytestArgs": [
