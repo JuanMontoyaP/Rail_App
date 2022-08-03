@@ -1,18 +1,19 @@
 from fastapi import APIRouter
 from fastapi import Body
-
 from fastapi import status
 
-from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
 from ..models import users
-from ..database.client import connect_to_database
+
+from ..services.users import UserService
 
 router = APIRouter(
     prefix="/users",
     tags=["Users"],
 )
+
+user_service = UserService()
 
 
 @router.get(path="/")
@@ -44,11 +45,7 @@ async def create_user(user: users.UserPassword = Body(...)):
         - last_name: str
         - role: Enum
     """
-    user = jsonable_encoder(user)
-
-    db = connect_to_database("rail")
-    new_user = await db["users"].insert_one(user)
-    create_user = await db["users"].find_one({"_id": new_user.inserted_id})
+    create_user = await user_service.create_new_user(user)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=create_user)
 
 
