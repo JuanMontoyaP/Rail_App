@@ -1,10 +1,9 @@
+from distutils.log import error
 from fastapi import APIRouter
-from fastapi import Body
+from fastapi import Path, Body
 from fastapi import status, HTTPException
 
-from fastapi.responses import JSONResponse
-
-from ..models import users
+from ..models import users, id
 from ..services.users import UserService
 
 router = APIRouter(
@@ -15,15 +14,56 @@ router = APIRouter(
 user_service = UserService()
 
 
-@router.get(path="/")
-async def get_users():
-    return [{"user": "rail"}]
+@router.get(
+    path="/{user_id}",
+    status_code=status.HTTP_200_OK,
+    response_description="Get user information",
+    response_model=users.User
+)
+async def get_user(
+    user_id: id.PyObjectId = Path(
+        ...,
+        title="Person ID",
+        description="This is the person ID",
+        example="62eac89c25d89e25b79a06f1"
+    )
+):
+    """
+    get_user
+
+    Get a specific user by ID from the database.
+
+    Parameters:
+
+        - Request path parameter:
+
+            - **user_id: PyObjectId** -> The user ID.
+
+    Returns a json with the basic user information:
+
+        - _id: PyObjectId
+        - email: EmailStr
+        - firs_name: str
+        - last_name: str
+        - role: Enum
+    """
+    try:
+        user = await user_service.get_a_user(user_id)
+        return user
+    except Exception as error:
+        msg = error
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(msg)
+        )
 
 
 @router.post(
     path="/",
+    status_code=status.HTTP_201_CREATED,
     response_description="Create a new user",
-    response_model=users.User)
+    response_model=users.User
+)
 async def create_user(user: users.UserPassword = Body(...)):
     """
     create_user
@@ -36,7 +76,7 @@ async def create_user(user: users.UserPassword = Body(...)):
 
             - **user: UserPassword** -> A user model with first name, last_name, email and password.
 
-    Returns a json with the basic user information:
+    Returns a json with the created user information:
 
         - _id: PyObjectId
         - email: EmailStr
@@ -46,7 +86,7 @@ async def create_user(user: users.UserPassword = Body(...)):
     """
     try:
         create_user = await user_service.create_new_user(user)
-        return JSONResponse(status_code=status.HTTP_201_CREATED, content=create_user)
+        return create_user
     except Exception as error:
         msg = error
         raise HTTPException(
@@ -55,11 +95,11 @@ async def create_user(user: users.UserPassword = Body(...)):
         )
 
 
-@router.put(path="/")
+@ router.put(path="/")
 async def update_user(username: str, password: str):
     pass
 
 
-@router.delete(path="/")
+@ router.delete(path="/")
 async def delete_user(username: str):
     pass

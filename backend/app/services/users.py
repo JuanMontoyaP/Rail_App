@@ -2,13 +2,29 @@ from msilib.schema import Error
 from fastapi.encoders import jsonable_encoder
 
 from ..database.client import connect_to_database
-from ..models import users
+from ..models import users, id
 from ..utils.validators import db_validators
 
 
 class UserService:
     def __init__(self):
         self.db = connect_to_database()
+
+    async def get_a_user(self, user_id: id.PyObjectId):
+        """
+        It takes a user_id, finds the user in the database, and returns the user
+
+        Args:
+          user_id (id.PyObjectId): id.PyObjectId
+
+        Returns:
+          A user object
+        """
+        user = await self.db["users"].find_one({"_id": str(user_id)})
+        if not user:
+            raise Exception("User not found")
+
+        return user
 
     async def create_new_user(self, user: users.UserPassword) -> users.UserPassword:
         """
