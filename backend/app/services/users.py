@@ -6,7 +6,7 @@ from ..models import users
 
 class UserService:
     def __init__(self):
-        self.db = connect_to_database("rail")
+        self.db = connect_to_database()
 
     async def create_new_user(self, user: users.UserPassword) -> users.UserPassword:
         """
@@ -20,6 +20,7 @@ class UserService:
           The user object that was created.
         """
         user = jsonable_encoder(user)
+        print(user)
         new_user = await self.db["users"].insert_one(user)
         created_user = await self.db["users"].find_one({"_id": new_user.inserted_id})
         return created_user

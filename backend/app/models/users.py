@@ -1,5 +1,3 @@
-from msilib import schema
-from tkinter import E
 from typing import Optional
 from bson import ObjectId
 from enum import Enum
@@ -18,7 +16,7 @@ class Role(Enum):
 
 class User(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    fist_name: str = Field(
+    first_name: str = Field(
         ...,
         min_length=1,
         max_length=50
@@ -32,6 +30,7 @@ class User(BaseModel):
 
     class Config:
         json_encoders = {ObjectId: str}
+        orm_mode = True
 
 
 class UserPassword(User):
@@ -44,7 +43,7 @@ class UserPassword(User):
     class Config:
         schema_extra = {
             "example": {
-                "fist_name": "Pink",
+                "first_name": "Pink",
                 "last_name": "Floyd",
                 "email": "pinkFloyd@pk.com",
                 "password": "Pink123456789"}
