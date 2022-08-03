@@ -1,4 +1,5 @@
-from distutils.log import error
+from pydantic import EmailStr
+
 from fastapi import APIRouter
 from fastapi import Path, Body
 from fastapi import status, HTTPException
@@ -17,8 +18,8 @@ user_service = UserService()
 @router.get(
     path="/{user_id}",
     status_code=status.HTTP_200_OK,
-    response_description="Get user information",
-    response_model=users.User
+    response_model=users.UserEmail,
+    summary="Get the user information by ID"
 )
 async def get_user(
     user_id: id.PyObjectId = Path(
@@ -61,10 +62,13 @@ async def get_user(
 @router.post(
     path="/",
     status_code=status.HTTP_201_CREATED,
-    response_description="Create a new user",
-    response_model=users.User
+    response_model=users.User,
+    response_description="User created successfully",
+    summary="Create a new user"
 )
-async def create_user(user: users.UserPassword = Body(...)):
+async def create_user(
+    user: users.UserPassword = Body(...)
+):
     """
     create_user
 
@@ -95,8 +99,22 @@ async def create_user(user: users.UserPassword = Body(...)):
         )
 
 
-@ router.put(path="/")
-async def update_user(username: str, password: str):
+@router.put(
+    path="/{user_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=users.UserEmail,
+    response_description="User updated successfully",
+    summary="Update a user"
+)
+async def update_user(
+    user_id: id.PyObjectId = Path(
+        ...,
+        title="Person ID",
+        description="This is the person ID",
+        example="62eac89c25d89e25b79a06f1"
+    ),
+    update_user: users.UserPassword = Body(...)
+):
     pass
 
 

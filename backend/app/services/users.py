@@ -1,4 +1,5 @@
-from msilib.schema import Error
+import bcrypt
+
 from fastapi.encoders import jsonable_encoder
 
 from ..database.client import connect_to_database
@@ -9,6 +10,11 @@ from ..utils.validators import db_validators
 class UserService:
     def __init__(self):
         self.db = connect_to_database()
+
+    def __hash_password(self, password):
+        password = password.encode('utf-8')
+        hashed_password = bcrypt.hashpw(password, bcrypt.gensalt(15))
+        return hashed_password
 
     async def get_a_user(self, user_id: id.PyObjectId):
         """
@@ -41,6 +47,8 @@ class UserService:
 
         if email_validator:
             raise Exception("The user already exists")
+
+        user.password = self.__hash_password(user.password)
 
         user = jsonable_encoder(user)
         new_user = await self.db["users"].insert_one(user)

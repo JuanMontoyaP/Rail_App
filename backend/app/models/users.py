@@ -1,3 +1,4 @@
+from re import U
 from typing import Optional
 from bson import ObjectId
 from enum import Enum
@@ -33,8 +34,11 @@ class User(BaseModel):
         orm_mode = True
 
 
-class UserPassword(User):
+class UserEmail(User):
     email: EmailStr = Field(...)
+
+
+class UserPassword(UserEmail):
     password: str = Field(
         ...,
         min_length=8,

@@ -10,6 +10,7 @@ motor = "*"
 pymongo = "*"
 python-dotenv = "*"
 pydantic = {extras = ["email"], version = "*"}
+bcrypt = "*"
 
 [dev-packages]
 autopep8 = "*"
