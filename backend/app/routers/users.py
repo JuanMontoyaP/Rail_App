@@ -26,7 +26,7 @@ async def get_user(
         ...,
         title="Person ID",
         description="This is the person ID",
-        example="62eae2fe8828d0d2c5574327"
+        example="62eb023655c81062bd13ac51"
     )
 ):
     """
@@ -111,7 +111,7 @@ async def update_user(
         ...,
         title="Person ID",
         description="Person ID to update",
-        example="62eae2fe8828d0d2c5574327"
+        example="62eb023655c81062bd13ac51"
     ),
     new_info: users.UserPassword = Body(...)
 ):
@@ -161,7 +161,7 @@ async def delete_user(
         ...,
         title="Person ID",
         description="Person ID to delete",
-        example="62eae2fe8828d0d2c5574327"
+        example="62eb023655c81062bd13ac51"
     )
 ):
     """

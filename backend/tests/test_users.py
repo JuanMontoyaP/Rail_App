@@ -1,23 +1,25 @@
 import pytest
 from faker import Faker
+from httpx import AsyncClient
 
-from fastapi.testclient import TestClient
 
 from app.main import app
-from app.database.client import connect_to_database
 
 
 fake = Faker()
 
-db = connect_to_database()
 
-client = TestClient(app)
+@pytest.fixture
+async def async_app_client():
+    async with AsyncClient(app=app, base_url='http://test') as client:
+        yield client
 
 
 @pytest.mark.users
-def test_create_a_new_user():
+async def test_create_a_new_user(async_app_client):
     user = fake.name().split()
-    response = client.post(
+
+    response = await async_app_client.post(
         "/users/",
         json={
             "first_name": user[0],
@@ -26,4 +28,16 @@ def test_create_a_new_user():
             "password": fake.password()
         }
     )
+
     assert response.status_code == 201
+
+    data = response.json()
+    assert "_id" in data
+
+    user_id = data["_id"]
+
+    response = await async_app_client.get(f"/users/{user_id}")
+    assert response.status_code == 200
+
+    response = await async_app_client.delete(f"/users/{user_id}")
+    assert response.status_code == 200
