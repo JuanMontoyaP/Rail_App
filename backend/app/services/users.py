@@ -89,5 +89,16 @@ class UserService:
 
         return updated_user
 
-    async def delete_a_user(self, user_id):
-        pass
+    async def delete_a_user(self, user_id: id.ObjectId):
+        """
+        It deletes a user from the database and returns the deleted user
+
+        Args:
+          user_id (id.ObjectId): id.ObjectId
+
+        Returns:
+          The deleted user
+        """
+        deleted_user = await self.get_a_user(user_id)
+        await self.db.delete_one({"_id": str(user_id)})
+        return deleted_user

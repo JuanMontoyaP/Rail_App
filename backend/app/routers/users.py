@@ -124,7 +124,7 @@ async def update_user(
 
         - Returns path parameter:
 
-            - - **user_id: PyObjectId** -> The user ID.
+            - **user_id: PyObjectId** -> The user ID.
 
         - Request body parameter:
 
@@ -160,8 +160,35 @@ async def delete_user(
     user_id: id.PyObjectId = Path(
         ...,
         title="Person ID",
-        description="This is the person ID",
+        description="Person ID to delete",
         example="62eae2fe8828d0d2c5574327"
     )
 ):
-    pass
+    """
+    delete_user
+
+    This path operation deletes an user in the database.
+
+    Parameters:
+
+        - Returns path parameter:
+
+            - **user_id: PyObjectId** -> The user ID.
+
+    Returns a json with the deleted user information:
+
+        - _id: PyObjectId
+        - email: EmailStr
+        - firs_name: str
+        - last_name: str
+        - role: Enum
+    """
+    try:
+        deleted_user = await user_service.delete_a_user(user_id)
+        return deleted_user
+    except Exception as error:
+        msg = error
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(msg)
+        )
