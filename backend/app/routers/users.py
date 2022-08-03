@@ -1,11 +1,10 @@
 from fastapi import APIRouter
 from fastapi import Body
-from fastapi import status
+from fastapi import status, HTTPException
 
 from fastapi.responses import JSONResponse
 
 from ..models import users
-
 from ..services.users import UserService
 
 router = APIRouter(
@@ -45,8 +44,15 @@ async def create_user(user: users.UserPassword = Body(...)):
         - last_name: str
         - role: Enum
     """
-    create_user = await user_service.create_new_user(user)
-    return JSONResponse(status_code=status.HTTP_201_CREATED, content=create_user)
+    try:
+        create_user = await user_service.create_new_user(user)
+        return JSONResponse(status_code=status.HTTP_201_CREATED, content=create_user)
+    except Exception as error:
+        msg = error
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(msg)
+        )
 
 
 @router.put(path="/")

@@ -1,7 +1,9 @@
+from msilib.schema import Error
 from fastapi.encoders import jsonable_encoder
 
 from ..database.client import connect_to_database
 from ..models import users
+from ..utils.validators import db_validators
 
 
 class UserService:
@@ -19,8 +21,12 @@ class UserService:
         Returns:
           The user object that was created.
         """
+        email_validator = await db_validators.validate_unique_email(user.email)
+
+        if email_validator:
+            raise Exception("The user already exists")
+
         user = jsonable_encoder(user)
-        print(user)
         new_user = await self.db["users"].insert_one(user)
         created_user = await self.db["users"].find_one({"_id": new_user.inserted_id})
         return created_user
