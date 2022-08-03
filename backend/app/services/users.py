@@ -1,3 +1,4 @@
+from hashlib import new
 import bcrypt
 
 from fastapi.encoders import jsonable_encoder
@@ -9,11 +10,12 @@ from ..utils.validators import db_validators
 
 class UserService:
     def __init__(self):
-        self.db = connect_to_database()
+        self.client = connect_to_database()
+        self.db = self.client["users"]
 
     def __hash_password(self, password):
         password = password.encode('utf-8')
-        hashed_password = bcrypt.hashpw(password, bcrypt.gensalt(15))
+        hashed_password = bcrypt.hashpw(password, bcrypt.gensalt(6))
         return hashed_password
 
     async def get_a_user(self, user_id: id.PyObjectId):
@@ -26,7 +28,7 @@ class UserService:
         Returns:
           A user object
         """
-        user = await self.db["users"].find_one({"_id": str(user_id)})
+        user = await self.db.find_one({"_id": str(user_id)})
         if not user:
             raise Exception("User not found")
 
@@ -51,6 +53,41 @@ class UserService:
         user.password = self.__hash_password(user.password)
 
         user = jsonable_encoder(user)
-        new_user = await self.db["users"].insert_one(user)
-        created_user = await self.db["users"].find_one({"_id": new_user.inserted_id})
+        new_user = await self.db.insert_one(user)
+        created_user = await self.db.find_one({"_id": new_user.inserted_id})
         return created_user
+
+    async def update_user_info(self, user_id: id.ObjectId, new_info: users.UserPassword) -> users.UserPassword:
+        """
+        It updates a user's information in the database
+
+        Args:
+          user_id (id.ObjectId): id.ObjectId
+          new_info (users.UserPassword): users.UserPassword
+
+        Returns:
+          The updated user
+        """
+
+        email_validator = await db_validators.validate_unique_email(new_info.email)
+
+        if email_validator:
+            raise Exception("The email already exists")
+
+        await self.db.update_one(
+            {"_id": str(user_id)},
+            {'$set': {
+                "first_name": new_info.first_name,
+                "last_name": new_info.last_name,
+                "email": new_info.email,
+                "password": self.__hash_password(new_info.password)
+            }
+            }
+        )
+
+        updated_user = await self.get_a_user(user_id)
+
+        return updated_user
+
+    async def delete_a_user(self, user_id):
+        pass

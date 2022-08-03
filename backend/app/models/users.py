@@ -28,17 +28,14 @@ class User(BaseModel):
         max_length=50
     )
     role: Optional[Role] = Field(default="user")
+    email: EmailStr = Field(...)
 
     class Config:
         json_encoders = {ObjectId: str}
         orm_mode = True
 
 
-class UserEmail(User):
-    email: EmailStr = Field(...)
-
-
-class UserPassword(UserEmail):
+class UserPassword(User):
     password: str = Field(
         ...,
         min_length=8,

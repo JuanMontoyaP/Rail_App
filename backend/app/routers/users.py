@@ -18,7 +18,7 @@ user_service = UserService()
 @router.get(
     path="/{user_id}",
     status_code=status.HTTP_200_OK,
-    response_model=users.UserEmail,
+    response_model=users.User,
     summary="Get the user information by ID"
 )
 async def get_user(
@@ -26,7 +26,7 @@ async def get_user(
         ...,
         title="Person ID",
         description="This is the person ID",
-        example="62eac89c25d89e25b79a06f1"
+        example="62eae2fe8828d0d2c5574327"
     )
 ):
     """
@@ -102,22 +102,66 @@ async def create_user(
 @router.put(
     path="/{user_id}",
     status_code=status.HTTP_200_OK,
-    response_model=users.UserEmail,
+    response_model=users.User,
     response_description="User updated successfully",
-    summary="Update a user"
+    summary="Update the user information"
 )
 async def update_user(
     user_id: id.PyObjectId = Path(
         ...,
         title="Person ID",
-        description="This is the person ID",
-        example="62eac89c25d89e25b79a06f1"
+        description="Person ID to update",
+        example="62eae2fe8828d0d2c5574327"
     ),
-    update_user: users.UserPassword = Body(...)
+    new_info: users.UserPassword = Body(...)
 ):
-    pass
+    """
+    update_user
+
+    This path operation updates an existing user in the database.
+
+    Parameters:
+
+        - Returns path parameter:
+
+            - - **user_id: PyObjectId** -> The user ID.
+
+        - Request body parameter:
+
+            - **user: UserPassword** -> A user model with first name, last_name, email and password.
+
+    Returns a json with the updated user information:
+
+        - _id: PyObjectId
+        - email: EmailStr
+        - firs_name: str
+        - last_name: str
+        - role: Enum
+    """
+    try:
+        updated_user = await user_service.update_user_info(user_id, new_info)
+        return updated_user
+    except Exception as error:
+        msg = error
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(msg)
+        )
 
 
-@ router.delete(path="/")
-async def delete_user(username: str):
+@ router.delete(
+    path="/{user_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=users.User,
+    response_description="User updated successfully",
+    summary="Update the user information"
+)
+async def delete_user(
+    user_id: id.PyObjectId = Path(
+        ...,
+        title="Person ID",
+        description="This is the person ID",
+        example="62eae2fe8828d0d2c5574327"
+    )
+):
     pass
