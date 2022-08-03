@@ -22,9 +22,28 @@ async def get_users():
 
 @router.post(
     path="/",
-    response_description="Add a new user",
+    response_description="Create a new user",
     response_model=users.User)
-async def create_user(user: users.User = Body(...)):
+async def create_user(user: users.UserPassword = Body(...)):
+    """
+    create_user
+
+    This path operation creates a new user in the database.
+
+    Parameters:
+
+        - Request body parameter:
+
+            - **user: UserPassword** -> A user model with first name, last_name, email and password.
+
+    Returns a json with the basic user information:
+
+        - _id: PyObjectId
+        - email: EmailStr
+        - firs_name: str
+        - last_name: str
+        - role: Enum
+    """
     user = jsonable_encoder(user)
 
     db = connect_to_database("rail")
